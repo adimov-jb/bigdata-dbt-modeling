@@ -1,0 +1,18 @@
+models:
+  - name: stg_world_bank__countries
+    description: Países do snapshot mais recente do Banco Mundial, sem os agregados (regiões e faixas de renda).
+    columns:
+      - name: iso3
+        data_tests: [unique, not_null]
+      - name: name
+        data_tests: [not_null]
+
+  - name: stg_world_bank__indicators
+    description: Indicadores do snapshot mais recente, só de países. value nulo = o Banco Mundial não publicou o dado.
+    columns:
+      - name: indicator_id
+        data_tests: [not_null]
+      - name: country_iso3
+        data_tests: [not_null]
+      - name: year
+        data_tests: [not_null]

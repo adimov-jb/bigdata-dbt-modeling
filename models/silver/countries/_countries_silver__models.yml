@@ -1,0 +1,17 @@
+models:
+  - name: int_countries
+    description: >
+      Relacionamento Banco Mundial x Rest Countries pelo ISO alpha-3 (full outer join).
+      match_status diz se o país está nas duas fontes ou em só uma; exceções de código
+      ficam no seed country_code_crosswalk.
+    columns:
+      - name: country_key
+        data_tests: [unique, not_null]
+      - name: match_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["ambas", "so_world_bank", "so_rest_countries"]
+      - name: country_name
+        data_tests: [not_null]

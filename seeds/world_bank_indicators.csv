@@ -1,0 +1,6 @@
+indicator_id,column_name,description,unit,min_coverage_pct
+NY.GDP.MKTP.CD,gdp_usd,PIB em dólares correntes,US$,90
+FP.CPI.TOTL.ZG,inflation_pct,"Inflação, preços ao consumidor",% ao ano,75
+SP.DYN.LE00.IN,life_expectancy_years,Expectativa de vida ao nascer,anos,95
+SI.POV.DDAY,poverty_pct,População abaixo da linha internacional de pobreza,% da população,0
+SP.POP.TOTL,population,População total,pessoas,99

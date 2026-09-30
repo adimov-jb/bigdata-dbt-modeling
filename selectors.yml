@@ -1,0 +1,21 @@
+# Domínios do projeto: o Airflow roda um `dbt build --selector <domínio>` por domínio.
+# childrens_parents = tudo o que vem depois das sources e as dependências desses modelos
+# (seeds, por exemplo), o mesmo que o operador @ na linha de comando.
+selectors:
+  - name: open_meteo
+    description: Tempo horário das capitais (Open-Meteo)
+    definition:
+      method: source
+      value: open_meteo
+      childrens_parents: true
+
+  - name: countries
+    description: Países (Rest Countries) e indicadores socioeconômicos (Banco Mundial)
+    definition:
+      union:
+        - method: source
+          value: rest_countries
+          childrens_parents: true
+        - method: source
+          value: world_bank
+          childrens_parents: true

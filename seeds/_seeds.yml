@@ -1,4 +1,36 @@
 seeds:
+  - name: world_bank_indicators
+    description: >
+      Indicadores do Banco Mundial modelados na gold: coluna na fct_country_indicators_yearly
+      e cobertura mínima exigida (% de países com valor nos anos já publicados; 0 = só medir).
+    config:
+      column_types:
+        indicator_id: varchar
+        column_name: varchar
+        description: varchar
+        unit: varchar
+        min_coverage_pct: double
+    columns:
+      - name: indicator_id
+        data_tests: [unique, not_null]
+      - name: column_name
+        data_tests: [unique, not_null]
+
+  - name: country_code_crosswalk
+    description: >
+      Exceções de código entre o Banco Mundial e o ISO 3166 (Rest Countries).
+      rest_countries_alpha_3 vazio = o país do Banco Mundial não tem equivalente.
+    config:
+      column_types:
+        world_bank_iso3: varchar
+        rest_countries_alpha_3: varchar
+        reason: varchar
+    columns:
+      - name: world_bank_iso3
+        data_tests: [unique, not_null]
+      - name: reason
+        data_tests: [not_null]
+
   - name: weather_codes
     description: Códigos WMO de condição do tempo usados pela Open-Meteo.
     config:

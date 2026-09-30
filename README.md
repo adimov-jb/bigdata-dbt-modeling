@@ -42,6 +42,9 @@ docker compose run --rm dbt build                   # seeds + modelos + testes
 docker compose run --rm dbt build --full-refresh    # recria as tabelas incrementais
 docker compose run --rm dbt source freshness
 
+# Valida o projeto nos targets local e aws, sem conectar a nada (é o que a CI roda)
+docker compose run --rm --build tests
+
 # Documentação e linhagem em http://localhost:8082 (Ctrl+C para parar)
 docker compose run --rm --service-ports --entrypoint sh dbt -c "dbt docs generate && dbt docs serve --host 0.0.0.0 --port 8082 --no-browser"
 ```
@@ -57,6 +60,10 @@ FROM iceberg.gold.fct_weather_daily f
 JOIN iceberg.gold.dim_city d USING (city)
 ORDER BY 1 DESC, 2, 3;
 ```
+
+## CI
+
+O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda em todo PR e em todo push para a `main`, com `dbt parse` nos targets `local` e `aws` (`docker compose run --rm --build tests`). Isso pega erros de Jinja, `ref`/`source` quebrados e YAML inválido nos dois adapters, mas não executa SQL. A `main` é protegida: só recebe mudanças por PR, e o check `dbt-parse` precisa passar antes do merge.
 
 ## Variáveis de ambiente
 

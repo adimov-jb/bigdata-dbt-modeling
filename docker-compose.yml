@@ -14,6 +14,21 @@ services:
       - "8082:8082" # dbt docs serve
     networks: [bigdata]
 
+  # Valida o projeto nos dois targets (Jinja, refs, YAML) sem conectar a nada. Usado na CI.
+  tests:
+    build: .
+    image: bigdata-dbt:test
+    profiles: ["tools"]
+    env_file: .env.local
+    environment:
+      DBT_SEND_ANONYMOUS_USAGE_STATS: "false"
+    network_mode: none
+    entrypoint: ["sh", "-c"]
+    command:
+      - >-
+        dbt parse --target local --no-partial-parse &&
+        DBT_SCHEMA_PREFIX=bigdata_dev_ dbt parse --target aws --no-partial-parse
+
 networks:
   bigdata:
     external: true

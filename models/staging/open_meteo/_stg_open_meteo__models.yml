@@ -1,4 +1,16 @@
 models:
+  - name: stg_open_meteo__locations
+    description: >
+      Uma linha por cidade, com o snapshot mais recente em que ela aparece. Cidades que saem
+      da ingestão continuam aqui, para o histórico da silver e da gold seguir válido.
+    columns:
+      - name: city
+        data_tests: [unique, not_null]
+      - name: state
+        data_tests: [not_null]
+      - name: region
+        data_tests: [not_null]
+
   - name: stg_open_meteo__weather_hourly
     description: View sobre a bronze com colunas renomeadas para incluir a unidade.
     columns:

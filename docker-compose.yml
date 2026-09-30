@@ -1,4 +1,5 @@
-# Requer a plataforma local do repositório Terraform no ar (rede "bigdata").
+# Requer a plataforma local do repositório Terraform no ar (rede "bigdata") e o
+# platform/local.env gerado pelo terraform apply de lá.
 name: bigdata-dbt
 
 services:
@@ -6,7 +7,11 @@ services:
     build: .
     # Nome fixo: o Airflow local executa esta imagem via DockerOperator.
     image: bigdata-dbt:local
-    env_file: .env.local
+    # Buckets e Trino vêm do contrato da plataforma; .env.local tem só o que é do dbt.
+    env_file:
+      - path: ${BIGDATA_PLATFORM_DIR:-../Terraform/platform}/local.env
+        required: false
+      - .env.local
     # Monta o projeto para editar modelos sem rebuild. target/ e logs/ ficam no host.
     volumes:
       - .:/usr/app/dbt

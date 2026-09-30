@@ -9,7 +9,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('cities')
+                to: ref('stg_open_meteo__locations')
                 field: city
       - name: observed_at
         data_tests: [not_null]

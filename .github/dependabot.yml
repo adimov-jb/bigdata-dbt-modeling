@@ -1,0 +1,20 @@
+# Atualizações mensais, agrupadas num PR por ecossistema. A CI valida cada PR.
+# Dependências Python ficam em requirements*.lock e são atualizadas com scripts/lock.sh
+# (veja o RUNBOOK.md do repositório bigdata-terraform).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      docker:
+        patterns: ["*"]

@@ -1,0 +1,15 @@
+target/
+dbt_packages/
+logs/
+.user.yml
+__pycache__/
+.venv/
+
+# Variáveis com segredos; .env.local (Trino/LocalStack) é versionado de propósito.
+.env
+.env.*
+!.env.local
+
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,30 @@
+models:
+  - name: dim_city
+    description: Uma linha por cidade monitorada.
+    columns:
+      - name: city
+        data_tests: [unique, not_null]
+      - name: region
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"]
+
+  - name: fct_weather_daily
+    description: Resumo diário do tempo por cidade (Iceberg, incremental com merge).
+    columns:
+      - name: city
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_city')
+                field: city
+      - name: observed_date
+        data_tests: [not_null]
+      - name: hours_observed
+        description: Horas com leitura no dia; 24 quando o dia está completo.
+      - name: precipitation_total_mm
+        description: Soma da precipitação horária, em mm.
+      - name: most_severe_weather_code
+        description: Maior código WMO do dia (condição mais severa).

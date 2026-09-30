@@ -1,0 +1,25 @@
+models:
+  - name: int_weather_hourly
+    description: >
+      Leituras horárias limpas e deduplicadas (Iceberg, particionado por dia).
+      Incremental com merge por cidade + hora; reprocessa os últimos `lookback_days` dias.
+    columns:
+      - name: city
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('cities')
+                field: city
+      - name: observed_at
+        data_tests: [not_null]
+      - name: observed_date
+        data_tests: [not_null]
+      - name: weather_code
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('weather_codes')
+                field: weather_code
+      - name: weather_description
+        description: Descrição em português do código WMO (seed weather_codes).

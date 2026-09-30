@@ -1,0 +1,19 @@
+# Requer a plataforma local do repositório Terraform no ar (rede "bigdata").
+name: bigdata-dbt
+
+services:
+  dbt:
+    build: .
+    # Nome fixo: o Airflow local executa esta imagem via DockerOperator.
+    image: bigdata-dbt:local
+    env_file: .env.local
+    # Monta o projeto para editar modelos sem rebuild. target/ e logs/ ficam no host.
+    volumes:
+      - .:/usr/app/dbt
+    ports:
+      - "8082:8082" # dbt docs serve
+    networks: [bigdata]
+
+networks:
+  bigdata:
+    external: true

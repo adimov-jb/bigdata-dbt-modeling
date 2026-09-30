@@ -1,0 +1,26 @@
+bigdata:
+  target: "{{ env_var('DBT_TARGET', 'local') }}"
+  outputs:
+    # Local: Trino com catálogo Iceberg sobre o S3 do LocalStack.
+    local:
+      type: trino
+      method: none
+      user: dbt
+      http_scheme: http
+      host: "{{ env_var('TRINO_HOST', 'trino') }}"
+      port: "{{ env_var('TRINO_PORT', '8080') | int }}"
+      database: iceberg
+      schema: silver
+      threads: 4
+
+    # AWS: Athena + Glue. Credenciais vêm da role da task ECS.
+    aws:
+      type: athena
+      region_name: "{{ env_var('AWS_REGION', 'us-east-1') }}"
+      work_group: "{{ env_var('ATHENA_WORKGROUP', 'bigdata-dev') }}"
+      s3_staging_dir: "s3://{{ env_var('ATHENA_RESULTS_BUCKET', '') }}/dbt/"
+      s3_data_dir: "s3://{{ env_var('SILVER_BUCKET', '') }}/"
+      s3_data_naming: schema_table
+      database: awsdatacatalog
+      schema: "{{ env_var('DBT_SCHEMA_PREFIX', 'bigdata_dev_') }}silver"
+      threads: 4

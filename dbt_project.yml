@@ -1,0 +1,45 @@
+name: bigdata
+version: "0.1.0"
+profile: bigdata
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+clean-targets: ["target", "dbt_packages"]
+
+flags:
+  require_certificate_validation: true
+
+# Prefixo dos schemas vem da env DBT_SCHEMA_PREFIX: vazio localmente (silver, gold);
+# na AWS, "bigdata_dev_" casa com os databases do Glue criados pelo Terraform.
+vars:
+  # Tabela bronze: registrada pela ingestão (local) ou pelo Glue Crawler (AWS).
+  bronze_weather_table: open_meteo_weather_hourly
+  # Execuções incrementais reprocessam os últimos N dias (dados que chegaram atrasados).
+  lookback_days: 3
+
+seeds:
+  bigdata:
+    +schema: silver
+    # Athena: seeds como Iceberg. Ignorado pelo Trino, onde tudo no catálogo iceberg já é Iceberg.
+    +table_type: iceberg
+
+models:
+  bigdata:
+    +table_type: iceberg
+    +format: parquet
+    # Trino: CREATE OR REPLACE atômico (Iceberg), sem tabela temporária + rename.
+    +on_table_exists: replace
+    staging:
+      +schema: silver
+      +materialized: view
+    silver:
+      +schema: silver
+      +materialized: incremental
+    gold:
+      +schema: gold
+      +materialized: table
+      # Athena: grava a gold no bucket próprio.
+      +s3_data_dir: "s3://{{ env_var('GOLD_BUCKET', '') }}/"

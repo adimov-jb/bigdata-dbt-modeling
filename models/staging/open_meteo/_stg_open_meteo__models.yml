@@ -1,0 +1,14 @@
+models:
+  - name: stg_open_meteo__weather_hourly
+    description: View sobre a bronze com colunas renomeadas para incluir a unidade.
+    columns:
+      - name: temperature_c
+        description: Temperatura a 2 m, em °C.
+      - name: relative_humidity_pct
+        description: Umidade relativa a 2 m, em %.
+      - name: precipitation_mm
+        description: Precipitação na hora, em mm.
+      - name: wind_speed_kmh
+        description: Velocidade do vento a 10 m, em km/h.
+      - name: weather_code
+        description: Código WMO da condição do tempo.

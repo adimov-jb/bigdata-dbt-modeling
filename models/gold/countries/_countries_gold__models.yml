@@ -1,0 +1,48 @@
+models:
+  - name: dim_country
+    description: >
+      Uma linha por país ou território das duas fontes. in_rest_countries e in_world_bank
+      dizem de onde vieram os atributos: território só da Rest Countries não tem indicadores.
+    columns:
+      - name: country_key
+        description: Código ISO 3166-1 alpha-3 (da Rest Countries; do Banco Mundial quando não há par).
+        data_tests: [unique, not_null]
+      - name: country_name
+        data_tests: [not_null]
+      - name: match_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["ambas", "so_world_bank", "so_rest_countries"]
+      - name: population_current
+        description: População atual segundo a Rest Countries (nulo para país só do Banco Mundial).
+
+  - name: fct_country_indicators_yearly
+    description: >
+      Indicadores do Banco Mundial por país e ano. Grade completa país x ano: dado não
+      publicado aparece como nulo, e indicators_available conta quantos vieram na linha.
+    columns:
+      - name: country_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_country')
+                field: country_key
+      - name: year
+        data_tests: [not_null]
+      - name: indicators_available
+        description: Quantos indicadores têm valor nesta linha (de 0 a indicators_expected).
+        data_tests: [not_null]
+
+  - name: dq_indicator_coverage
+    description: >
+      Cobertura de cada indicador por ano (% de países com valor). Anos da janela de
+      referência abaixo do mínimo do seed world_bank_indicators ficam com status
+      'abaixo_do_minimo' e fazem o teste assert_indicator_coverage falhar.
+    columns:
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["ok", "abaixo_do_minimo", "fora_da_janela"]

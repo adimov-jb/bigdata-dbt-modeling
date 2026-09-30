@@ -1,0 +1,10 @@
+models:
+  - name: stg_rest_countries__countries
+    description: >
+      Países e territórios com código ISO do snapshot mais recente da Rest Countries
+      (sem os 'unassigned', que não têm alpha_3).
+    columns:
+      - name: alpha_3
+        data_tests: [unique, not_null]
+      - name: name_common
+        data_tests: [not_null]

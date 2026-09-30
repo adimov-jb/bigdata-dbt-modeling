@@ -1,0 +1,43 @@
+sources:
+  - name: world_bank
+    description: >
+      Bronze do Banco Mundial gravada pelo repositório bigdata-ingestion-python
+      (fontes world_bank_indicators e world_bank_countries). Cada partição dt é um snapshot
+      completo do que a API publicava naquele dia.
+    database: "{{ 'hive' if target.type == 'trino' else 'awsdatacatalog' }}"
+    schema: "{{ env_var('DBT_SCHEMA_PREFIX', '') }}bronze"
+    config:
+      loaded_at_field: ingested_at
+      freshness:
+        warn_after: { count: 1, period: day }
+        error_after: { count: 2, period: day }
+    tables:
+      - name: indicators
+        identifier: "{{ var('bronze_world_bank_indicators_table') }}"
+        description: Formato longo, uma linha por indicador, país ou agregado e ano. value nulo = sem dado publicado.
+        columns:
+          - name: indicator_id
+            data_tests:
+              - not_null
+              # Indicador ingerido sem mapeamento no seed world_bank_indicators não entra na gold.
+              - relationships:
+                  arguments:
+                    to: ref('world_bank_indicators')
+                    field: indicator_id
+          - name: country_wb_code
+            data_tests: [not_null]
+          - name: year
+            data_tests: [not_null]
+          - name: dt
+            data_tests: [not_null]
+
+      - name: countries
+        identifier: "{{ var('bronze_world_bank_countries_table') }}"
+        description: Países e agregados (regiões, faixas de renda) do Banco Mundial.
+        columns:
+          - name: iso3
+            data_tests: [not_null]
+          - name: is_aggregate
+            data_tests: [not_null]
+          - name: dt
+            data_tests: [not_null]

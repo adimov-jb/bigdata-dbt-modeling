@@ -18,6 +18,13 @@ vars:
   # Tabela bronze: registrada pela ingestão (local) ou pelo Glue Crawler (AWS).
   bronze_weather_table: open_meteo_weather_hourly
   bronze_locations_table: open_meteo_locations
+  bronze_world_bank_indicators_table: world_bank_indicators
+  bronze_world_bank_countries_table: world_bank_countries
+  bronze_rest_countries_table: rest_countries
+  # Países: anos cobrados na validação de cobertura. O último ano cobrado é o da data
+  # processada menos o atraso de publicação do Banco Mundial.
+  countries_publication_lag_years: 2
+  countries_coverage_window_years: 5
   # Execuções incrementais reprocessam os últimos N dias (dados que chegaram atrasados).
   lookback_days: 3
   # Janela explícita (YYYY-MM-DD), usada pelo Airflow e em backfills. Quando definida,
@@ -43,6 +50,9 @@ models:
     silver:
       +schema: silver
       +materialized: incremental
+      # Países: poucas linhas e snapshot completo a cada dia, então recria a tabela inteira.
+      countries:
+        +materialized: table
     gold:
       +schema: gold
       +materialized: table

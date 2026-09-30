@@ -66,7 +66,7 @@ ORDER BY 1 DESC, 2, 3;
 
 ## CI
 
-O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda em todo PR e em todo push para a `main`, com `dbt parse` nos targets `local` e `aws` (`docker compose run --rm --build tests`). Isso pega erros de Jinja, `ref`/`source` quebrados e YAML inválido nos dois adapters, mas não executa SQL. A `main` é protegida: só recebe mudanças por PR, e o check `dbt-parse` precisa passar antes do merge.
+O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda em todo PR e em todo push para a `main`, com `dbt parse` nos targets `local` e `aws` (`docker compose run --rm --build tests`). Isso pega erros de Jinja, `ref`/`source` quebrados e YAML inválido nos dois adapters, mas não executa SQL.
 
 ## Variáveis de ambiente
 

@@ -21,7 +21,8 @@ A lista de cidades vem da ingestão (fonte `open_meteo_locations`). Não existe 
 - **Incremental:** cada execução reprocessa os últimos `lookback_days` dias (padrão 3), o que cobre dados que chegam atrasados. O `merge` pela chave evita duplicatas.
 - **Janela explícita:** `--vars '{"start_date": "2026-09-01", "end_date": "2026-09-07"}'` substitui o lookback. O Airflow passa sempre o dia do run, então backfills de datas antigas funcionam. Sem `end_date`, processa só o `start_date`.
 - **Reprocessar tudo:** `dbt build --full-refresh`.
-- **Testes:** `unique`, `not_null`, `relationships` e `accepted_values`, mais dois testes SQL: faixa física dos valores e uma linha por cidade e hora. Há também freshness da fonte: aviso depois de 1 dia sem dados e erro depois de 2. O Airflow roda essa checagem todo dia na DAG `bronze_freshness`, e o erro dispara o alerta por e-mail.
+- **Build por domínio:** cada source do dbt é um domínio. O Airflow roda um `dbt build --select @source:<domínio>` por domínio, que seleciona tudo o que vem depois da source e também as dependências desses modelos, como o seed `weather_codes`. Assim, um teste que falhe num domínio não impede o build de outro. Hoje o único domínio é `open_meteo`.
+- **Testes:** `unique`, `not_null`, `relationships` e `accepted_values`, mais três testes SQL: faixa física dos valores, uma linha por cidade e hora, e dia completo na gold (`assert_gold_days_complete`). Este último falha se algum dia da janela `start_date`..`end_date` não chegou à `fct_weather_daily` ou se alguma cidade não tem as 24 horas. Sem janela, ele confere o dia mais recente. Esse teste fazia o papel da task `validate_gold` do Airflow e agora roda igual no Trino e no Athena. Há também freshness da fonte: aviso depois de 1 dia sem dados e erro depois de 2. O Airflow roda essa checagem todo dia na DAG `bronze_freshness`, e o erro dispara o alerta por e-mail.
 
 ## Dois targets, o mesmo SQL
 
@@ -42,6 +43,7 @@ A plataforma local (`bigdata-terraform`) precisa estar no ar, e a bronze precisa
 docker compose build                                # imagem bigdata-dbt:local
 docker compose run --rm dbt debug                   # testa a conexão com o Trino
 docker compose run --rm dbt build                   # seeds + modelos + testes
+docker compose run --rm dbt build --select @source:open_meteo --vars '{"start_date": "2026-09-29"}'  # um domínio, um dia (como o Airflow)
 docker compose run --rm dbt build --full-refresh    # recria as tabelas incrementais
 docker compose run --rm dbt source freshness
 

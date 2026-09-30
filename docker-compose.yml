@@ -4,7 +4,11 @@ name: bigdata-dbt
 
 services:
   dbt:
-    build: .
+    build:
+      context: .
+      args:
+        # Commit gravado na imagem; scripts/platform.sh do repositório Terraform preenche.
+        GIT_SHA: ${GIT_SHA:-dev}
     # Nome fixo: o Airflow local executa esta imagem via DockerOperator.
     image: bigdata-dbt:local
     # Buckets e Trino vêm do contrato da plataforma; .env.local tem só o que é do dbt.

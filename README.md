@@ -39,6 +39,12 @@ O Athena usa o motor do Trino, então os modelos usam apenas funções que exist
 
 A plataforma local (`bigdata-terraform`) precisa estar no ar, e a bronze precisa ter dados (`bigdata-ingestion-python`).
 
+O jeito mais simples de subir e operar os quatro repositórios juntos é o `scripts/platform.sh` do repositório `bigdata-terraform` (`up`, `build`, `status` e `reset`). Problemas comuns e como resolvê-los estão no [RUNBOOK](https://github.com/adimov-jb/bigdata-terraform/blob/main/RUNBOOK.md).
+
+O `scripts/platform.sh build` grava o commit deste repositório na imagem, e toda execução imprime `bigdata-dbt commit <sha>` na primeira linha do log. Um `docker compose build` direto grava `dev`.
+
+**Dependências:** `requirements.in` fixa `dbt-core` e os adapters. `requirements.lock`, gerado por `scripts/lock.sh`, fixa todas as dependências, e é ele que a imagem instala. Para atualizar, edite o `.in` se precisar, rode `scripts/lock.sh`, revise o diff e rode os testes.
+
 ```bash
 docker compose build                                # imagem bigdata-dbt:local
 docker compose run --rm dbt debug                   # testa a conexão com o Trino

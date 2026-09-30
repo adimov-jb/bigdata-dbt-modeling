@@ -1,15 +1,4 @@
 seeds:
-  - name: cities
-    description: Cidades monitoradas, com UF e região.
-    config:
-      column_types:
-        city: varchar
-        state: varchar
-        region: varchar
-    columns:
-      - name: city
-        data_tests: [unique, not_null]
-
   - name: weather_codes
     description: Códigos WMO de condição do tempo usados pela Open-Meteo.
     config:

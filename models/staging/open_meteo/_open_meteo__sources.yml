@@ -19,3 +19,14 @@ sources:
             data_tests: [not_null]
           - name: dt
             data_tests: [not_null]
+
+      - name: locations
+        identifier: "{{ var('bronze_locations_table') }}"
+        description: >
+          Snapshot diário das cidades monitoradas pela ingestão (fonte open_meteo_locations),
+          particionado por dt. É a única lista de cidades do projeto.
+        columns:
+          - name: city
+            data_tests: [not_null]
+          - name: dt
+            data_tests: [not_null]

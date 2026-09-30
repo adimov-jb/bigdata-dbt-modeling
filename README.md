@@ -4,9 +4,12 @@ Transforma a bronze gravada pelo `bigdata-ingestion-python` em tabelas **Iceberg
 
 ```
 bronze (Parquet)                  silver (Iceberg)                        gold (Iceberg)
-open_meteo_weather_hourly ──> stg_open_meteo__weather_hourly (view) ──> int_weather_hourly ──┬──> fct_weather_daily
-                                        seeds: cities, weather_codes ─────────────────────────┴──> dim_city
+open_meteo_weather_hourly ──> stg_open_meteo__weather_hourly (view) ──> int_weather_hourly ──> fct_weather_daily
+                                          seed: weather_codes ──────────────┘
+open_meteo_locations ───────> stg_open_meteo__locations (view) ─────────────────────────────> dim_city
 ```
+
+A lista de cidades vem da ingestão (fonte `open_meteo_locations`). Não existe seed de cidades: para incluir uma cidade, altere só o repositório de ingestão.
 
 | Modelo | Camada | Materialização | O que faz |
 |---|---|---|---|
@@ -67,10 +70,12 @@ O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda em todo P
 
 ## Variáveis de ambiente
 
-| Variável | Local (`.env.local`) | AWS |
+| Variável | Local | AWS |
 |---|---|---|
-| `DBT_TARGET` | `local` | `aws` |
-| `TRINO_HOST` / `TRINO_PORT` | `trino` / `8080` | não usado |
-| `SILVER_BUCKET` / `GOLD_BUCKET` | `bigdata-local-silver` / `bigdata-local-gold` | saídas do Terraform |
+| `DBT_TARGET` | `local` (`.env.local`) | `aws` |
+| `TRINO_HOST` / `TRINO_PORT` | `trino` / `8080` (contrato da plataforma) | não usado |
+| `SILVER_BUCKET` / `GOLD_BUCKET` | `bigdata-local-silver` / `bigdata-local-gold` (contrato da plataforma) | saídas do Terraform |
 | `DBT_SCHEMA_PREFIX` | vazio | `bigdata_dev_` |
 | `ATHENA_RESULTS_BUCKET`, `ATHENA_WORKGROUP`, `AWS_REGION` | não usados | saídas do Terraform |
+
+O "contrato da plataforma" é `platform/local.env`, gerado pelo `terraform apply` do repositório `bigdata-terraform`. O `docker-compose.yml` carrega esse arquivo e depois o `.env.local`, que guarda só o que é do dbt.

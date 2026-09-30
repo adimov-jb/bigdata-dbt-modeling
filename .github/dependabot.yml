@@ -18,3 +18,8 @@ updates:
     groups:
       docker:
         patterns: ["*"]
+    ignore:
+      # Os .lock são gerados para o Python 3.12, e as outras imagens do projeto também usam 3.12.
+      # Trocar de versão é uma decisão do projeto inteiro: mude o FROM e rode scripts/lock.sh.
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]

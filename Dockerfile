@@ -9,7 +9,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /usr/app/dbt
 
 COPY requirements.txt ./
-RUN pip install -r requirements.txt && useradd --system --uid 10001 --create-home app
+# A pasta do projeto precisa ser do usuário app: o dbt cria target/ e logs/ nela.
+RUN pip install -r requirements.txt \
+    && useradd --system --uid 10001 --create-home app \
+    && chown app /usr/app/dbt
 
 COPY --chown=app . .
 USER app

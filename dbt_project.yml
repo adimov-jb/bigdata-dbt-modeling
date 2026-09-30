@@ -19,6 +19,10 @@ vars:
   bronze_weather_table: open_meteo_weather_hourly
   # Execuções incrementais reprocessam os últimos N dias (dados que chegaram atrasados).
   lookback_days: 3
+  # Janela explícita (YYYY-MM-DD), usada pelo Airflow e em backfills. Quando definida,
+  # substitui o lookback. end_date vazio = só start_date.
+  start_date: ""
+  end_date: ""
 
 seeds:
   bigdata:

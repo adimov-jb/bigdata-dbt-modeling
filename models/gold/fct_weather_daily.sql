@@ -12,9 +12,14 @@ with hourly as (
 
     select * from {{ ref('int_weather_hourly') }}
     {% if is_incremental() %}
-        where observed_date >= date_add(
-            'day', -{{ var('lookback_days') }}, (select max(observed_date) from {{ this }})
-        )
+        {% if var('start_date') %}
+            where observed_date between date '{{ var("start_date") }}'
+                and date '{{ var("end_date") or var("start_date") }}'
+        {% else %}
+            where observed_date >= date_add(
+                'day', -{{ var('lookback_days') }}, (select max(observed_date) from {{ this }})
+            )
+        {% endif %}
     {% endif %}
 
 ),

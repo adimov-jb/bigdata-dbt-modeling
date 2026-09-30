@@ -16,6 +16,7 @@ open_meteo_weather_hourly ──> stg_open_meteo__weather_hourly (view) ──> 
 | `fct_weather_daily` | gold | incremental (merge) | Temperaturas mínima, máxima e média, chuva total, umidade, vento e condição mais severa do dia |
 
 - **Incremental:** cada execução reprocessa os últimos `lookback_days` dias (padrão 3), o que cobre dados que chegam atrasados. O `merge` pela chave evita duplicatas.
+- **Janela explícita:** `--vars '{"start_date": "2026-09-01", "end_date": "2026-09-07"}'` substitui o lookback. O Airflow passa sempre o dia do run, então backfills de datas antigas funcionam. Sem `end_date`, processa só o `start_date`.
 - **Reprocessar tudo:** `dbt build --full-refresh`.
 - **Testes:** `unique`, `not_null`, `relationships` e `accepted_values`, mais dois testes SQL: faixa física dos valores e uma linha por cidade e hora. Há também freshness da fonte: aviso depois de 2 dias sem dados, erro depois de 7.
 

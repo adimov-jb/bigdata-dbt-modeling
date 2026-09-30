@@ -15,10 +15,15 @@ with source as (
     where observed_at is not null
     {% if is_incremental() %}
         -- dt é 'YYYY-MM-DD' (texto): filtrar por ele aproveita a partição da bronze.
-        and dt >= cast(
-            date_add('day', -{{ var('lookback_days') }}, (select max(observed_date) from {{ this }}))
-            as varchar
-        )
+        {% if var('start_date') %}
+            -- Janela explícita (Airflow, backfill).
+            and dt between '{{ var("start_date") }}' and '{{ var("end_date") or var("start_date") }}'
+        {% else %}
+            and dt >= cast(
+                date_add('day', -{{ var('lookback_days') }}, (select max(observed_date) from {{ this }}))
+                as varchar
+            )
+        {% endif %}
     {% endif %}
 
 ),

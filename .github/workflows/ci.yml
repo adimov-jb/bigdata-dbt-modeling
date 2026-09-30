@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Um push novo no mesmo branch cancela a execução anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  parse:
+    # Nome exigido pela proteção da main: mudar aqui exige atualizar a regra no GitHub.
+    name: dbt-parse
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      # Mesmo comando do README: valida o projeto nos dois targets, sem conectar a nada.
+      - name: dbt parse (local e aws)
+        run: docker compose run --rm --build tests

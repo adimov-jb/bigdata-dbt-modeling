@@ -1,6 +1,31 @@
-# dbt — modelagem silver e gold
+# bigdata-dbt-modeling — modelagem silver e gold
 
-Transforma a bronze gravada pelo `bigdata-ingestion-python` em tabelas **Iceberg** nas camadas silver e gold. São dois domínios: **open_meteo** (tempo horário das capitais, abaixo) e **countries** (países e indicadores socioeconômicos, em [Domínio countries](#domínio-countries)).
+Transforma a bronze gravada pelo `bigdata-ingestion-python` em tabelas **Iceberg** nas camadas silver e gold, com testes de qualidade em cada etapa. O mesmo SQL roda no Trino (local) e no Athena (AWS).
+
+São dois domínios, cada um com seu seletor em `selectors.yml` e seu próprio build no Airflow:
+
+- **open_meteo**: tempo horário das capitais, consolidado num resumo diário por cidade (detalhes logo abaixo).
+- **countries**: relaciona a Rest Countries com o Banco Mundial pelo código ISO e valida nulos e faltantes na gold (detalhes em [Domínio countries](#domínio-countries)).
+
+## A plataforma
+
+Este repositório é uma das quatro partes da plataforma de dados **bigdata**. Ela coleta dados públicos de APIs, organiza tudo num data lake em camadas (bronze → silver → gold) e entrega tabelas analíticas validadas. Tudo roda localmente em Docker, com LocalStack, Hive Metastore e Trino no lugar de S3, Glue e Athena, e está preparado para a AWS.
+
+| Repositório | Papel |
+|---|---|
+| [bigdata-terraform](https://github.com/adimov-jb/bigdata-terraform) | Infraestrutura (AWS e local), contrato da plataforma, operação (`scripts/platform.sh`) e runbook |
+| [bigdata-ingestion-python](https://github.com/adimov-jb/bigdata-ingestion-python) | Ingestão das APIs para a camada bronze (Parquet no S3) |
+| **bigdata-dbt-modeling** (este) | Camadas silver e gold (Iceberg), relacionamento entre fontes e validação de qualidade |
+| [bigdata-airflow-dags](https://github.com/adimov-jb/bigdata-airflow-dags) | Orquestração diária, alertas por e-mail e monitoramento de freshness |
+
+| Domínio | Fontes | Principais tabelas na gold |
+|---|---|---|
+| Clima | [Open-Meteo](https://open-meteo.com/): tempo horário de 10 capitais brasileiras | `fct_weather_daily`, `dim_city` |
+| Países | [Rest Countries v5](https://restcountries.com/) e [Banco Mundial](https://data.worldbank.org/): atributos dos países e indicadores socioeconômicos (PIB, inflação, expectativa de vida, pobreza, população) | `dim_country`, `fct_country_indicators_yearly`, `dq_indicator_coverage` |
+
+Para subir e operar tudo junto, use o `scripts/platform.sh up` do repositório `bigdata-terraform`. Os problemas conhecidos estão no [RUNBOOK](https://github.com/adimov-jb/bigdata-terraform/blob/main/RUNBOOK.md).
+
+## Domínio open_meteo
 
 ```
 bronze (Parquet)                  silver (Iceberg)                        gold (Iceberg)
